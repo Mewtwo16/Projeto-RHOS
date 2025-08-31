@@ -1,0 +1,38 @@
+No diretorio para conseguir trabalhar no projeto execute: 
+
+
+- Criar package.json
+npm init -y
+
+- Instalar typescript
+npm install typescript --save-dev
+
+- Criar arquivo de configuração typescript
+npx tsc --init
+
+- instalar electron
+npm install electron --save-dev
+
+
+/meu-app-electron/
+    /dist/                  Compilado
+    /src/                   Backend
+        main.ts
+        preload.ts
+    /app/                   Frontend
+        /assets/
+            /css/
+                globa.css
+                login.css
+            /fonts/
+                fontes.ttf
+            /img/
+                imagens.png
+        /views
+            /login/
+                login.html
+                script.js
+                                    
+package.json
+tsconfig.json
+
