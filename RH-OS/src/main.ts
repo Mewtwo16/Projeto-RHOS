@@ -20,7 +20,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, '../app/index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'));
 }
 
 // Gerencia a ciclo da aplicação

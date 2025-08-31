@@ -1,6 +1,13 @@
+/*
+    Usando metodo atual ES modules
+*/
+// Imports
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
-const __dirname = path.dirname(__filename);
+import { fileURLToPath } from 'url'; // Transforma URL em caminho
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename); //necessita definir a variavel __dirname
+// Função de Criação padrão
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 800,
@@ -9,8 +16,9 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
-    mainWindow.loadFile(path.join(__dirname, '../app/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'));
 }
+// Gerencia a ciclo da aplicação
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', () => {
