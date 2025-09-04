@@ -18,7 +18,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url(img/backgronu.jpg);
+    background: rgba(250, 250, 210, 0.8);
     background-size: cover; 
     background-position: center;
 }
@@ -29,7 +29,7 @@ body {
     align-items: center;
     width: 600px;
     height: 420px;
-    background-color: rgba(7, 116, 241, 0.603);
+    background-color: rgba(5, 100, 250, 0.4);
     border: 2px solid rgba(255, 255, 255, .2);
     border-radius: 30px;
     color: black;

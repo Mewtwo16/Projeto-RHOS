@@ -1,0 +1,8 @@
+
+
+function escopo (){
+
+
+};
+
+escopo();
