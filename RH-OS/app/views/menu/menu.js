@@ -36,4 +36,4 @@
         }
     });
 
-})(); // <-- PARÊNTESES DE EXECUÇÃO ADICIONADOS
+})();

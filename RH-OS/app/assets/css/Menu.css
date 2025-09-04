@@ -52,7 +52,7 @@ body {
     display: flex;
     align-items: center;
     text-transform: uppercase;
-    color: white;
+    color: black;
     text-decoration: none;
     padding: 0 20px;
     border-radius: 5px;
@@ -66,7 +66,7 @@ body {
     display: none;
     position: absolute; 
     background-color: rgba(7, 116, 241, 0.4);
-    min-width: 200px; 
+    min-width: 150px; 
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1; 
     list-style: none; 
