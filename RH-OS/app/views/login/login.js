@@ -1,8 +1,7 @@
 
+(function(){
 
-function escopo (){
+    
 
 
-};
-
-escopo();
+});
