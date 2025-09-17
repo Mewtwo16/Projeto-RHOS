@@ -22,6 +22,24 @@ npm install mysql2
 - Instalar dotenv
 npm install dotenv
 
+###################
+Essencial
+###################
+
+Criar arquivo .env e adicionar no .gitignore
+
+modelo de configuração:
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=sua senha
+DB_DATABASE=seu banco
+
+####################
+Arvore do diretorio
+####################
+
 /meu-app-electron/
     /dist/                  Compilado
     /src/                   Backend
