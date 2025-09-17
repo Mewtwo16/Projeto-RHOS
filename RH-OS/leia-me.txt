@@ -13,12 +13,22 @@ npx tsc --init
 - instalar electron
 npm install electron --save-dev
 
+- instalar knex
+npm install knex 
+
+- instalar mysql2
+npm install mysql2
+
+- Instalar dotenv
+npm install dotenv
 
 /meu-app-electron/
     /dist/                  Compilado
     /src/                   Backend
         main.ts
         preload.ts
+        knexfile.ts
+        types.ts
     /app/                   Frontend
         /assets/
             /css/
@@ -35,4 +45,5 @@ npm install electron --save-dev
                                     
 package.json
 tsconfig.json
+.env
 

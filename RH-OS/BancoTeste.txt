@@ -1,0 +1,16 @@
+CREATE DATABASE IF NOT EXISTS rh_os_db;
+
+USE rh_os_db;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_usuario VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    cargo VARCHAR(50) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO usuarios (nome_usuario, senha, cargo) VALUES
+('admin', '123', 'Administrador'),
+('andre', 'senha456', 'Operador')
+ON DUPLICATE KEY UPDATE nome_usuario=nome_usuario; 

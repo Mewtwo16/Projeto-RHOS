@@ -31,18 +31,19 @@
             <p class="texto-login"><strong>Faça seu login</strong></p>
             <form>
                 <div class="input-box">
-                    <input placeholder="Usuario" type="text">
+                    <input id="usuario" placeholder="Usuario" type="text">
                     <i class="bx bxs-user"></i>
                 </div>
                 <div class="input-box">
-                    <input placeholder="senha" type="password">
+                    <input id="senha" placeholder="senha" type="password">
                     <i class="bx bxs-lock-alt"></i>
                 </div>
-                <button type="submit" class="login">Login</button>
+                <button id="btn-login" type="submit" class="login">Login</button>
             </form>
+            <p id="mensagem-erro" class="mensagem-erro"></p>
         </div>
-        </div>
-        <script src="../Renderer/login.js"></script>
+    </div>
+    <script src="../Renderer/login.js"></script>
 </body>
 
 </html>

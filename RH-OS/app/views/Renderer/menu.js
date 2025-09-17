@@ -1,3 +1,7 @@
+/*
+    Renderer do Menu
+        Funções do Menu
+ */
 
 (function() {
     const dropdowns = document.querySelectorAll('.dropdown');
