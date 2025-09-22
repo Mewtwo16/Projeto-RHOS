@@ -1,4 +1,8 @@
 "use strict";
+/*
+  main.ts
+    Logica do backend
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 // Requires
 const { app, BrowserWindow, ipcMain } = require('electron');
