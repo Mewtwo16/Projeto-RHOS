@@ -7,13 +7,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Requires
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const knex = require('knex');
-const dotenv = require('dotenv');
+const login = require('./services/auth').login;
+const db = require('./services/auth').db;
 // configuração .env 
-dotenv.config();
+//dotenv.config();
 // Constantes
-const knexConfig = require('./knexfile');
-const db = knex(knexConfig.development);
+//const knexConfig = require('./knexfile');
+//const db: KnexType = knex(knexConfig.development);
 // --- GERENCIAMENTO DE JANELAS ---
 function createLoginWindow() {
     const loginWindow = new BrowserWindow({
@@ -28,7 +28,7 @@ function createLoginWindow() {
     loginWindow.maximize();
     loginWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'));
 }
-function createMenuWindow() {
+function createMainWindow() {
     const menuWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -62,20 +62,14 @@ app.on('window-all-closed', () => {
 });
 // COMUNICAÇÃO IPC
 ipcMain.handle('login:submit', async (event, usuario, senha) => {
-    try {
-        const user = await db('usuarios').where({ nome_usuario: usuario }).first();
-        if (user && user.senha === senha) {
-            createMenuWindow();
-            BrowserWindow.fromWebContents(event.sender)?.close();
-            return { success: true, message: 'Login bem-sucedido!' };
-        }
-        else {
-            return { success: false, message: 'Usuário ou senha inválidos' };
-        }
+    // 2. Chame a função importada do serviço
+    const resultadoLogin = await login(usuario, senha);
+    // 3. Use o resultado para controlar o fluxo da aplicação
+    if (resultadoLogin.success) {
+        createMainWindow(); // ou createMenuWindow(), dependendo do nome da sua função
+        BrowserWindow.fromWebContents(event.sender)?.close();
     }
-    catch (error) {
-        console.error('[Main IPC Error]:', error);
-        return { success: false, message: 'Erro de comunicação com o servidor.' };
-    }
+    // 4. Retorne o resultado para a página de login
+    return resultadoLogin;
 });
 //# sourceMappingURL=main.js.map

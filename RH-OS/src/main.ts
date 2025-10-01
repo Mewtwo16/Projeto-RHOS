@@ -6,20 +6,25 @@
 // Requires
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const knex = require('knex');
-const dotenv = require('dotenv');
+const login = require('./services/auth').login;
+const db = require('./services/auth').db;
+
+/*
+//const knex = require('knex');
+//const dotenv = require('dotenv');
 // Imports
-import type { Knex as KnexType } from 'knex';
+//import type { Knex as KnexType } from 'knex';
+*/
 import type { RespostaLogin } from './types';
 import type { IpcMainInvokeEvent } from 'electron';
-
+/*
 // configuração .env 
-dotenv.config();
+//dotenv.config();
 
 // Constantes
-const knexConfig = require('./knexfile');
-const db: KnexType = knex(knexConfig.development);
-
+//const knexConfig = require('./knexfile');
+//const db: KnexType = knex(knexConfig.development);
+*/
 // --- GERENCIAMENTO DE JANELAS ---
 function createLoginWindow() {
   const loginWindow = new BrowserWindow({
@@ -35,7 +40,7 @@ function createLoginWindow() {
   loginWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'));
 }
 
-function createMenuWindow() {
+function createMainWindow() {
   const menuWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -70,17 +75,10 @@ app.on('window-all-closed', () => {
 
 // COMUNICAÇÃO IPC
 ipcMain.handle('login:submit', async (event: IpcMainInvokeEvent, usuario: string, senha: string): Promise<RespostaLogin> => {
-  try {
-    const user = await db('usuarios').where({ nome_usuario: usuario }).first();
-    if (user && user.senha === senha) {
-      createMenuWindow();
-      BrowserWindow.fromWebContents(event.sender)?.close();
-      return { success: true, message: 'Login bem-sucedido!' };
-    } else {
-      return { success: false, message: 'Usuário ou senha inválidos' };
-    }
-  } catch (error) {
-    console.error('[Main IPC Error]:', error);
-    return { success: false, message: 'Erro de comunicação com o servidor.' };
+  const resultadoLogin = await login(usuario, senha);
+  if (resultadoLogin.success) {
+    createMainWindow();
+    BrowserWindow.fromWebContents(event.sender)?.close();
   }
+  return resultadoLogin;
 });
