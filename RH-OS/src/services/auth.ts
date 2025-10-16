@@ -1,5 +1,7 @@
 const knex = require('knex');
 const dotenv = require('dotenv');
+const bcrypt = require('bcrypt');
+
 import type { Knex as KnexType } from 'knex';
 import type { RespostaLogin } from '../types';
 
@@ -10,8 +12,8 @@ const db: KnexType = knex(knexConfig.development);
 
 async function login(usuario: string, senha: string): Promise<RespostaLogin> {
      try {
-    const user = await db('usuarios').where({ nome_usuario: usuario }).first();
-    if (user && user.senha === senha) {
+    const user = await db('usuarios').where({ login: usuario }).first();
+    if (user && bcrypt.compare(senha, user.senha_hash)) {
       return { success: true, message: 'Login bem-sucedido!' };
     } else {
       return { success: false, message: 'Usuário ou senha inválidos' };

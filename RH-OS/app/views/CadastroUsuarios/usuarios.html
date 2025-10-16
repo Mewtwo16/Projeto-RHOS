@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/usuarios.css">
+    <title>Cadastro de Usuários</title>
+</head>
+
+<body>
+    <main>
+        <form class="form" id="form_usuario">
+            <h2 class="form-title">Usuarios</h2>
+
+            <div>
+                <label for="nome">Nome Completo:</label>
+                <input type="text" class="nome" id="nome" placeholder="Digite o nome completo" required>
+
+                <label for="email">Email:</label>
+                <input type="email" class="email" id="email" placeholder="exemplo@email.com" required>
+
+                <label for="cpf">CPF:</label>
+                <input type="text" class="cpf" id="cpf" placeholder="000.000.000-00" required>
+
+                <label for="dataNascimento">Data Nascimento:</label>
+                <input type="date" class="dataNascimento" id="dataNascimento" required>
+                
+                <label for="cargo">Cargo:</label>
+                <select id="cargo" name="cargo" required>
+                    <option value="" disabled selected>Selecione um cargo</option>
+                    <option value="analista_rh">Analista de RH</option>
+                    <option value="gerente_rh">Gerente de RH</option>
+                    <option value="desenvolvedor">Desenvolvedor</option>
+                    <option value="Administrador">Administrador</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="usuario">Usuário:</label>
+                <input type="text" class="usuario" id="usuario" placeholder="Crie um nome de usuário" required>
+
+                <label for="senha">Senha:</label>
+                <input type="password" class="senha" id="senha" placeholder="Digite sua senha" required>
+
+                <label for="senha_confirma">Confirmar Senha:</label>
+                <input type="password" class="senha_confirma" id="senha_confirma" placeholder="Confirme sua senha" required>
+                
+                <button type="submit">Cadastrar</button>
+            </div>
+        </form>
+    </main>
+</body>
+
+<script src="usuarios.js"></script>
+</html>

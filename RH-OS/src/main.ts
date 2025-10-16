@@ -8,23 +8,12 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const login = require('./services/auth').login;
 const db = require('./services/auth').db;
+const { adicionarUsuario } = require('./services/user');
 
-/*
-//const knex = require('knex');
-//const dotenv = require('dotenv');
-// Imports
-//import type { Knex as KnexType } from 'knex';
-*/
+
 import type { RespostaLogin } from './types';
 import type { IpcMainInvokeEvent } from 'electron';
-/*
-// configuração .env 
-//dotenv.config();
 
-// Constantes
-//const knexConfig = require('./knexfile');
-//const db: KnexType = knex(knexConfig.development);
-*/
 // --- GERENCIAMENTO DE JANELAS ---
 function createLoginWindow() {
   const loginWindow = new BrowserWindow({
@@ -41,7 +30,7 @@ function createLoginWindow() {
 }
 
 function createMainWindow() {
-  const menuWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -50,8 +39,8 @@ function createMainWindow() {
       nodeIntegration: false,
     },
   });
-  menuWindow.maximize();
-  menuWindow.loadFile(path.join(__dirname, '../app/views/menu/menu.html'));
+  mainWindow.maximize();
+  mainWindow.loadFile(path.join(__dirname, '../app/views/menu/menu.html'));
 }
 
 app.whenReady().then(async () => {
@@ -81,4 +70,17 @@ ipcMain.handle('login:submit', async (event: IpcMainInvokeEvent, usuario: string
     BrowserWindow.fromWebContents(event.sender)?.close();
   }
   return resultadoLogin;
+});
+
+ipcMain.handle('add-usuario', async (event: IpcMainInvokeEvent, dadosUsuario: any) => {
+    console.log('[Main]: Recebido pedido para adicionar novo utilizador.');
+
+    try {
+        await adicionarUsuario(db, dadosUsuario);
+        return { success: true, message: 'Utilizador cadastrado com sucesso!' };
+
+    } catch (error) {
+        console.error('[Main FATAL]: Erro ao chamar o serviço de adicionar utilizador:', error);
+        return { success: false, message: `Falha no cadastro: ${error}` };
+    }
 });
