@@ -1,20 +1,25 @@
 /*
-    Renderer de usuarios
-        - controle da validaçõa e chama api backend para inserir os campos se validados
+        Renderer de usuários
+        - Responsável por validar o formulário de cadastro e, em caso de sucesso,
+            enviar os dados ao backend via preload (window.api.adicionarUsuario).
+        - Mantém a lógica de validação encapsulada na classe Formulario.
 */
 
 (function () {
 
+    // Vincula o submit do formulário à rotina de validação + envio
     const form = document.getElementById('form_usuario');
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Cria uma instância validada do formulário (ou null em caso de erro)
             const formulario = Formulario.criar();
 
             if (formulario) {
                 console.log('FORMULÁRIO VÁLIDO! Objeto criado:', formulario.getDados());
                 const dados = formulario.getDados();
+                // Encaminha para o backend (IPC) via API exposta no preload
                 const resposta = await window.api.adicionarUsuario(dados);
 
                 if(resposta.success){
@@ -29,6 +34,7 @@
         });
     }
 
+    // Classe utilitária para concentrar leitura/validação dos campos
     class Formulario {
         #nome_completo
         #email
@@ -49,7 +55,9 @@
             this.#cargo = dadosUsuario.cargo;
         }
 
-        static criar() {
+    // Faz a leitura do DOM, limpa erros, valida entradas e, em caso de
+    // sucesso, retorna uma instância de Formulario com os dados consolidados.
+    static criar() {
             const formInputs = {
                 nomeInput: document.getElementById('nome'),
                 emailInput: document.getElementById('email'),
@@ -86,15 +94,18 @@
 
         }
 
+        // Remove marcação de erro visual do campo
         static #limpaErro(inputElement) {
             inputElement.classList.remove('bad');
         }
 
-        static #mostraErro(inputElement, mensagem) {
-            inputElement.classList.add('bad');
-            console.error(mensagem);
+        // Aplica marcação de erro e loga mensagem no console (poderia exibir na UI)
+        static #mostraErro(campo, msg) {
+            campo.classList.add('bad');
+            console.error(msg);
         }
 
+        // Garante que nenhum campo obrigatório está vazio
         static #validaVazio(formInputs) {
             let eValido = true;
             const inputs = Object.values(formInputs);
@@ -107,6 +118,7 @@
             return eValido;
         }
 
+        // Verifica se senha e confirmação são iguais
         static #validaSenha(senhaInput, senha_confirmaInput) {
             if (senhaInput.value !== senha_confirmaInput.value) {
                 this.#mostraErro(senhaInput, 'Senhas não concidem');
@@ -116,6 +128,9 @@
             return true;
         }
 
+        // Validação básica de CPF:
+        //  - Remove caracteres não numéricos; verifica tamanho 11 e repetição;
+        //  - Calcula os dois dígitos verificadores e compara com o informado.
         static #validaCPF(cpf) {
             let eValido = true;
             const cpfLimpo = String(cpf.value).replace(/\D+/g, '');
@@ -139,6 +154,7 @@
             return eValido;
         }
 
+        // Cálculo do dígito verificador conforme regra do CPF
         static #calculaDigitoVerificador(cpfParcial) {
             const cpfArray = Array.from(cpfParcial).map(Number);
             let regressivo = cpfArray.length + 1;
@@ -166,7 +182,7 @@
             };
         }
 
-    }; // Final da classe
+    }; 
 
 
 })();

@@ -7,7 +7,8 @@
     <title>RH-OS Menus</title>
     <link rel="stylesheet" href="../../assets/css/global.css">
     <link rel="stylesheet" href="../../assets/css/Menu.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
+    <link rel="stylesheet" href="../../assets/css/usuarios.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
@@ -60,13 +61,13 @@
                         <li><a href="#" role="button">Contratações</a></li>
                         <li><a href="#" role="button">Relatorio de ponto</a></li>
                         <li><a href="#" role="button">custos e pagamentos</a></li>
-                        <li><a href="#" role="button">Logs de Usuarios</a></li>
+                        <li><a href="#" id="link-logs" role="button">Logs de Usuarios</a></li>
                     </ul>
                 </li>
                 <li class="dropdown"><a href="#" role="button" aria-haspopup="true">Sistema</a>
                     <ul class="submenus">
                         <li><a href="#" role="button">Parametros gerais do sistema</a></li>
-                        <li><a href="../CadastroUsuarios/usuarios.html" role="button">Cadastro de Usuarios</a></li>
+                        <li><a href="#" id="link-cadastro-usuarios" role="button">Cadastro de Usuarios</a></li>
                         <li><a href="#" role="button">cadastro de perfils/a></li>
                         <li><a href="#" role="button">Documentação</a></li>
                         <li><a href="#" role="button">Versão</a></li>
@@ -77,9 +78,13 @@
         </nav>
     </header>
 
-    <picture class="box-background">
-        <img src="../../assets/img/logo.png" alt="" srcset="">
-    </picture>
+    <main class="conteudo-principal">
+  <div id="barra-abas" class="barra-abas-estilo">
+    </div>
+  <div id="area-conteudo" class="area-conteudo-estilo">
+    <img src="../../assets/img/logo.png" alt="RH-OS Logo" class="logo-fundo">
+  </div>
+</main>
 
     <script src="../Renderer/menu.js"></script>
 </body>

@@ -1,6 +1,7 @@
 /*
     Renderer do login
-        - Funções da tela de login
+    - Captura credenciais, valida campos obrigatórios e invoca
+      window.api.submitLogin. Em caso de sucesso, o main abrirá a janela principal.
 */
 
 (function () {

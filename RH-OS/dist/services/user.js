@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt = require('bcrypt');
-async function adicionarUsuario(db, dadosUsuario) {
+const db = require('../db/db');
+const logService = require('./log');
+async function adicionarUsuario(dbParam, dadosUsuario) {
     const saltRounds = 10;
     const senhaHash = await bcrypt.hash(dadosUsuario.senha, saltRounds);
     await db.transaction(async (trx) => {
@@ -23,9 +25,22 @@ async function adicionarUsuario(db, dadosUsuario) {
             user_id: novoUsuarioId,
             roles_id: role.id
         });
+        try {
+            await logService.registrar({
+                user_id: novoUsuarioId,
+                username: dadosUsuario.usuario,
+                action: 'create',
+                resource: 'usuarios',
+                resource_id: novoUsuarioId,
+                details: `Criado usuário ${dadosUsuario.usuario} com role ${dadosUsuario.cargo}`
+            }, trx);
+        }
+        catch (err) {
+            console.error('Erro ao gravar log de criação de usuário:', err);
+        }
     });
 }
 module.exports = {
-    adicionarUsuario
+    adicionarUsuario: async (dadosUsuario) => adicionarUsuario(db, dadosUsuario)
 };
 //# sourceMappingURL=user.js.map

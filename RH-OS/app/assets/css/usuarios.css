@@ -16,14 +16,14 @@ main {
 
 .form {
     background-color: var(--background-card);
-    padding: var(--spacing-xl);
-    border-radius: var(--border-radius-lg);
-    box-shadow: 0 4px 20px var(--shadow-soft);
-    width: 100%;
-    max-width: 800px;
+    padding: 18px; 
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    width: 80vw; 
+    min-width: 640px;
     display: flex;
     gap: var(--spacing-lg);
-    flex-wrap: wrap; /* Permite que o título fique acima das colunas */
+    flex-wrap: wrap; 
 }
 
 .form-title {
@@ -36,7 +36,7 @@ main {
 
 .form > div {
     flex: 1;
-    min-width: 300px; /* Largura mínima para evitar que as colunas fiquem muito estreitas */
+    min-width: 300px; 
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
@@ -50,7 +50,6 @@ main {
     flex-direction: column;
 }
 
-/* Estilo unificado para inputs e select */
 .form input,
 .form select {
     margin-top: var(--spacing-xs);
@@ -63,7 +62,6 @@ main {
     background-color: var(--background-card);
 }
 
-/* Foco para inputs e select */
 .form input:focus,
 .form select:focus {
     outline: none;
@@ -72,7 +70,7 @@ main {
 }
 
 .form button {
-    margin-top: auto; /* Alinha o botão na parte inferior da coluna */
+    margin-top: auto; 
     width: 100%;
     background-color: var(--primary-color);
 }

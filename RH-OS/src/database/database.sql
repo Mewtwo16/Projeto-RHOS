@@ -93,6 +93,22 @@ CREATE TABLE IF NOT EXISTS `RHOS`.`roles_permissao` (
     ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
+-- -----------------------------------------------------
+-- Table `RHOS`.`logs`
+-- -----------------------------------------------------
+
+-- Create logs table
+CREATE TABLE IF NOT EXISTS logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  username VARCHAR(255) NULL,
+  action VARCHAR(50) NOT NULL,
+  resource VARCHAR(100) NULL,
+  resource_id INT NULL,
+  details TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
 import type { Knex } from 'knex';
+const db = require('../db/db') as Knex;
+const logService = require('./log');
 
-async function adicionarUsuario(db: Knex, dadosUsuario: any) {
+async function adicionarUsuario(dbParam: Knex, dadosUsuario: any) {
     const saltRounds = 10;
 
     const senhaHash = await bcrypt.hash(dadosUsuario.senha, saltRounds);
@@ -28,9 +30,21 @@ async function adicionarUsuario(db: Knex, dadosUsuario: any) {
             user_id: novoUsuarioId,
             roles_id: role.id
         });
+        try {
+                await logService.registrar({
+                user_id: novoUsuarioId,
+                username: dadosUsuario.usuario,
+                action: 'create',
+                resource: 'usuarios',
+                resource_id: novoUsuarioId,
+                details: `Criado usuário ${dadosUsuario.usuario} com role ${dadosUsuario.cargo}`
+            }, trx);
+        } catch (err) {
+            console.error('Erro ao gravar log de criação de usuário:', err);
+        }
     });
 }
 
 module.exports = {
-    adicionarUsuario
+    adicionarUsuario: async (dadosUsuario: any) => adicionarUsuario(db, dadosUsuario)
 };

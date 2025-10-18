@@ -1,15 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const knex = require('knex');
-const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
-dotenv.config();
+const db = require('../db/db');
 const knexConfig = require('../knexfile');
-const db = knex(knexConfig.development);
 async function login(usuario, senha) {
     try {
         const user = await db('usuarios').where({ login: usuario }).first();
-        if (user && bcrypt.compare(senha, user.senha_hash)) {
+        if (user && await bcrypt.compare(senha, user.senha_hash)) {
             return { success: true, message: 'Login bem-sucedido!' };
         }
         else {
@@ -22,8 +19,5 @@ async function login(usuario, senha) {
     }
 }
 ;
-module.exports = {
-    login,
-    db
-};
+module.exports = { login };
 //# sourceMappingURL=auth.js.map
