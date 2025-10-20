@@ -10,17 +10,20 @@ export interface EntradaLog {
   details?: string | null;
 }
 
-class ServicoLogs {
-  async registrar(entry: EntradaLog, trx?: Knex.Transaction) {
+class LogsService {
+  async writeLogs(entry: EntradaLog, trx?: Knex.Transaction) {
     try {
-      const q = trx ? trx('logs') : db('logs');
+      const q = trx ? trx('audit_logs') : db('audit_logs');
+      const detailsObj: any = {};
+      if (entry.username) detailsObj.username = entry.username;
+      if (entry.details) detailsObj.details = entry.details;
+
       await q.insert({
-        user_id: entry.user_id || null,
-        username: entry.username || null,
+        users_id: entry.user_id || null,
         action: entry.action,
         resource: entry.resource || null,
         resource_id: entry.resource_id || null,
-        details: entry.details || null,
+        details: Object.keys(detailsObj).length ? JSON.stringify(detailsObj) : null,
       });
       return { success: true };
     } catch (err) {
@@ -29,11 +32,36 @@ class ServicoLogs {
     }
   }
 
-  async listar(limit = 200) {
+  async listLogs(limit = 200) {
     try {
-      const rows = await db('logs').select('*').orderBy('created_at', 'desc').limit(limit);
+      const rows = await db('audit_logs').select('*').orderBy('created_at', 'desc').limit(limit);
+
+      const normalized = rows.map((r: any) => {
+        let username: string | null = null;
+        let detailsStr: string | null = null;
+        if (r.details) {
+          try {
+            const d = typeof r.details === 'string' ? JSON.parse(r.details) : r.details;
+            username = d?.username ?? null;
+            detailsStr = d?.details ?? (typeof d === 'object' ? JSON.stringify(d) : String(d));
+          } catch {
+            detailsStr = String(r.details);
+          }
+        }
+        return {
+          id: r.id,
+          user_id: r.users_id,
+          action: r.action,
+          resource: r.resource ?? null,
+          resource_id: r.resource_id ?? null,
+          created_at: r.created_at,
+          username,
+          details: detailsStr,
+        };
+      });
+
       console.debug('[ServicoLogs] listar: rows.length=', Array.isArray(rows) ? rows.length : 'not-array', rows && rows[0]);
-      return { success: true, data: rows };
+      return { success: true, data: normalized };
     } catch (err) {
       console.error('Erro ao listar logs:', err);
       return { success: false, error: String(err) };
@@ -41,4 +69,4 @@ class ServicoLogs {
   }
 }
 
-module.exports = new ServicoLogs();
+module.exports = new LogsService();

@@ -1,26 +1,49 @@
 /*
         Renderer de usuários
         - Responsável por validar o formulário de cadastro e, em caso de sucesso,
-            enviar os dados ao backend via preload (window.api.adicionarUsuario).
-        - Mantém a lógica de validação encapsulada na classe Formulario.
+            enviar os dados ao backend via preload (window.api.addUser).
 */
 
 (function () {
 
-    // Vincula o submit do formulário à rotina de validação + envio
+    async function carregarCargos() {
+        try {
+            const res = await window.api.getAllRoles();
+            if (!res || !res.success) return;
+            const select = document.getElementById('cargo');
+            if (!select) return;
+            const placeholder = select.querySelector('option[value=""]');
+            select.innerHTML = '';
+            if (placeholder) select.appendChild(placeholder);
+
+            (res.data || []).forEach(role => {
+                const opt = document.createElement('option');
+                opt.value = role.role_name;
+                opt.textContent = role.role_name;
+                select.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('Falha ao carregar cargos:', err);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', carregarCargos);
+    } else {
+        carregarCargos();
+    }
+
     const form = document.getElementById('form_usuario');
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Cria uma instância validada do formulário (ou null em caso de erro)
             const formulario = Formulario.criar();
 
             if (formulario) {
                 console.log('FORMULÁRIO VÁLIDO! Objeto criado:', formulario.getDados());
                 const dados = formulario.getDados();
-                // Encaminha para o backend (IPC) via API exposta no preload
-                const resposta = await window.api.adicionarUsuario(dados);
+                const resposta = await window.api.addUser(dados);
 
                 if(resposta.success){
                     console.log(resposta.message);
@@ -34,7 +57,6 @@
         });
     }
 
-    // Classe utilitária para concentrar leitura/validação dos campos
     class Formulario {
         #nome_completo
         #email
@@ -55,8 +77,6 @@
             this.#cargo = dadosUsuario.cargo;
         }
 
-    // Faz a leitura do DOM, limpa erros, valida entradas e, em caso de
-    // sucesso, retorna uma instância de Formulario com os dados consolidados.
     static criar() {
             const formInputs = {
                 nomeInput: document.getElementById('nome'),

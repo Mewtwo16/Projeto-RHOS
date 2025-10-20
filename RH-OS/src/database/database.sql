@@ -1,5 +1,3 @@
--- MySQL Workbench Forward Engineering (corrigido e atualizado)
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -11,23 +9,22 @@ CREATE SCHEMA IF NOT EXISTS `RHOS` DEFAULT CHARACTER SET utf8 ;
 USE `RHOS` ;
 
 -- -----------------------------------------------------
--- Table `RHOS`.`usuarios`
+-- Table `RHOS`.`users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `RHOS`.`usuarios` (
+CREATE TABLE IF NOT EXISTS `RHOS`.`users` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `nome_completo` VARCHAR(255) NOT NULL,
+  `full_name` VARCHAR(255) NOT NULL,     
   `email` VARCHAR(255) NOT NULL,
   `login` VARCHAR(45) NOT NULL,
-  `senha_hash` VARCHAR(255) NOT NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
   `cpf` VARCHAR(11) NOT NULL,
-  `dataNascimento` DATE NOT NULL,
+  `birth_date` DATE NOT NULL,            
   `status` TINYINT NOT NULL,
-  `data_criacao` DATETIME NOT NULL,
+  `creation_date` DATETIME NOT NULL,    
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `user_email_UNIQUE` (`email` ASC) VISIBLE,
-  UNIQUE INDEX `user_login_UNIQUE` (`login` ASC) VISIBLE,
-  UNIQUE INDEX `user_senha_hash_UNIQUE` (`senha_hash` ASC) VISIBLE,
-  UNIQUE INDEX `user_cpf_UNIQUE` (`cpf` ASC) VISIBLE
+  UNIQUE INDEX `users_email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `users_login_UNIQUE` (`login` ASC) VISIBLE,
+  UNIQUE INDEX `users_cpf_UNIQUE` (`cpf` ASC) VISIBLE
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
@@ -35,37 +32,37 @@ CREATE TABLE IF NOT EXISTS `RHOS`.`usuarios` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `RHOS`.`roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `nome_role` VARCHAR(255) NOT NULL,
-  `descricao` VARCHAR(255) NULL,
+  `role_name` VARCHAR(255) NOT NULL,     
+  `description` VARCHAR(255) NULL,       
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `roles_name_UNIQUE` (`nome_role` ASC) VISIBLE
+  UNIQUE INDEX `roles_name_UNIQUE` (`role_name` ASC) VISIBLE
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
--- Table `RHOS`.`permissao`
+-- Table `RHOS`.`allowed` 
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `RHOS`.`permissao` (
+CREATE TABLE IF NOT EXISTS `RHOS`.`allowed` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `permissao_nome` VARCHAR(255) NOT NULL,
+  `permission_name` VARCHAR(255) NOT NULL, 
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `permissao_nome_UNIQUE` (`permissao_nome` ASC) VISIBLE
+  UNIQUE INDEX `allowed_name_UNIQUE` (`permission_name` ASC) VISIBLE 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
--- Table `RHOS`.`role_usuario`
+-- Table `RHOS`.`role_users` 
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `RHOS`.`role_usuario` (
-  `user_id` INT UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `RHOS`.`role_users` (
+  `users_id` INT UNSIGNED NOT NULL,
   `roles_id` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`user_id`, `roles_id`),
-  INDEX `fk_reg_user_has_roles_roles1_idx` (`roles_id` ASC) VISIBLE,
-  INDEX `fk_reg_user_has_roles_reg_user_idx` (`user_id` ASC) VISIBLE,
-  CONSTRAINT `fk_reg_user_has_roles_reg_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `RHOS`.`usuarios` (`id`)
+  PRIMARY KEY (`users_id`, `roles_id`),
+  INDEX `fk_role_users_roles_idx` (`roles_id` ASC) VISIBLE, 
+  INDEX `fk_role_users_users_idx` (`users_id` ASC) VISIBLE, 
+  CONSTRAINT `fk_role_users_users` 
+    FOREIGN KEY (`users_id`)
+    REFERENCES `RHOS`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_reg_user_has_roles_roles1`
+  CONSTRAINT `fk_role_users_roles`
     FOREIGN KEY (`roles_id`)
     REFERENCES `RHOS`.`roles` (`id`)
     ON DELETE NO ACTION
@@ -73,41 +70,46 @@ CREATE TABLE IF NOT EXISTS `RHOS`.`role_usuario` (
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
--- Table `RHOS`.`roles_permissao`
+-- Table `RHOS`.`roles_allowed`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `RHOS`.`roles_permissao` (
+CREATE TABLE IF NOT EXISTS `RHOS`.`roles_allowed` (
   `roles_id` INT UNSIGNED NOT NULL,
-  `permissao_id` INT NOT NULL,
-  PRIMARY KEY (`roles_id`, `permissao_id`),
-  INDEX `fk_roles_has_user_permissao_user_permissao1_idx` (`permissao_id` ASC) VISIBLE,
-  INDEX `fk_roles_has_user_permissao_roles1_idx` (`roles_id` ASC) VISIBLE,
-  CONSTRAINT `fk_roles_has_user_permissao_roles1`
+  `allowed_id` INT NOT NULL,
+  PRIMARY KEY (`roles_id`, `allowed_id`),
+  INDEX `fk_roles_allowed_allowed_idx` (`allowed_id` ASC) VISIBLE,
+  INDEX `fk_roles_allowed_roles_idx` (`roles_id` ASC) VISIBLE,  
+  CONSTRAINT `fk_roles_allowed_roles`
     FOREIGN KEY (`roles_id`)
     REFERENCES `RHOS`.`roles` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_roles_has_user_permissao_user_permissao1`
-    FOREIGN KEY (`permissao_id`)
-    REFERENCES `RHOS`.`permissao` (`id`)
+  CONSTRAINT `fk_roles_allowed_allowed` 
+    FOREIGN KEY (`allowed_id`)
+    REFERENCES `RHOS`.`allowed` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
 -- -----------------------------------------------------
--- Table `RHOS`.`logs`
+-- Table `RHOS`.`audit_logs`
 -- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `RHOS`.`audit_logs` ( 
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `users_id` INT UNSIGNED NOT NULL,
+  `action` VARCHAR(100) NOT NULL,
+  `resource` VARCHAR(100) NULL,
+  `resource_id` INT NULL,
+  `details` JSON NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_audit_logs_users_id_idx` (`users_id` ASC) VISIBLE,
+  CONSTRAINT `fk_audit_logs_users`
+    FOREIGN KEY (`users_id`)
+    REFERENCES `RHOS`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;
 
--- Create logs table
-CREATE TABLE IF NOT EXISTS logs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NULL,
-  username VARCHAR(255) NULL,
-  action VARCHAR(50) NOT NULL,
-  resource VARCHAR(100) NULL,
-  resource_id INT NULL,
-  details TEXT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

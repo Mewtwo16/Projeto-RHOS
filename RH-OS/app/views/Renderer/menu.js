@@ -46,6 +46,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const linkCadastro = document.getElementById('link-cadastro-usuarios');
     const linkLogs = document.getElementById('link-logs');
+    const linkCargos = document.getElementById('link-cadastro-cargos')
 
     if (linkCadastro) {
         linkCadastro.addEventListener('click', (event) => {
@@ -58,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         linkLogs.addEventListener('click', (event) => {
             event.preventDefault();
             abrirOuAtivarAba('Logs/logs', 'Logs de Ações');
+        });
+    }
+    if (linkCargos) {
+        linkCargos.addEventListener('click', (event) => {
+            event.preventDefault();
+            abrirOuAtivarAba('Cargos/cargos', 'Cadastro de Cargos');
         });
     }
 });

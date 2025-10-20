@@ -5,15 +5,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // Require e imports
 const { contextBridge, ipcRenderer } = require('electron');
+async function getCurrentUserId() {
+    try {
+        const res = await ipcRenderer.invoke('session:get');
+        return typeof res?.userId === 'number' ? res.userId : null;
+    }
+    catch {
+        return null;
+    }
+}
 const api = {
     submitLogin: (usuario, senha) => ipcRenderer.invoke('login:submit', usuario, senha),
     getPage: (pageName) => ipcRenderer.invoke('app:get-page', pageName),
-    adicionarUsuario: (dadosUsuario) => ipcRenderer.invoke('add-usuario', dadosUsuario),
+    addUser: (dadosUsuario) => ipcRenderer.invoke('add-user', dadosUsuario),
+    addRole: (dadosCargo) => ipcRenderer.invoke('add-role', dadosCargo),
     getAllRoles: () => ipcRenderer.invoke('roles:getAll'),
-    registrarLog: (entrada) => ipcRenderer.invoke('log:acao', entrada),
-    obterLogs: (limit) => ipcRenderer.invoke('logs:obter', limit),
-    logAction: (entry) => ipcRenderer.invoke('log:acao', entry),
-    getLogs: (limit) => ipcRenderer.invoke('logs:obter', limit),
+    logAction: async (entry) => {
+        const uid = await getCurrentUserId();
+        const payload = { user_id: uid ?? entry.user_id ?? null, ...entry };
+        return ipcRenderer.invoke('log:write', payload);
+    },
+    getLogs: (limit) => ipcRenderer.invoke('logs:get', limit),
 };
 contextBridge.exposeInMainWorld('api', api);
 //# sourceMappingURL=preload.js.map

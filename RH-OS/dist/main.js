@@ -9,10 +9,11 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const login = require('./services/auth').login;
 const db = require('./db/db');
-const { adicionarUsuario } = require('./services/user');
+const userService = require('./services/user');
 const roleService = require('./services/role');
 const logService = require('./services/log');
 const fs = require('fs').promises;
+let currentUserId = null;
 // --- GERENCIAMENTO DE JANELAS ---
 function createLoginWindow() {
     const loginWindow = new BrowserWindow({
@@ -63,10 +64,14 @@ app.on('window-all-closed', () => {
 ipcMain.handle('login:submit', async (event, usuario, senha) => {
     const resultadoLogin = await login(usuario, senha);
     if (resultadoLogin.success) {
+        currentUserId = resultadoLogin.userId ?? null;
         createMainWindow();
         BrowserWindow.fromWebContents(event.sender)?.close();
     }
     return resultadoLogin;
+});
+ipcMain.handle('session:get', async () => {
+    return { userId: currentUserId };
 });
 ipcMain.handle('app:get-page', async (event, pageName) => {
     try {
@@ -79,14 +84,25 @@ ipcMain.handle('app:get-page', async (event, pageName) => {
         return { success: false, content: '<p>Erro ao carregar o conteúdo.</p>' };
     }
 });
-ipcMain.handle('add-usuario', async (event, dadosUsuario) => {
+ipcMain.handle('add-user', async (event, dadosUsuario) => {
     console.log('[Main]: Recebido pedido para adicionar novo utilizador.');
     try {
-        await adicionarUsuario(dadosUsuario);
+        await userService.addUser(dadosUsuario);
         return { success: true, message: 'Utilizador cadastrado com sucesso!' };
     }
     catch (error) {
         console.error('[Main FATAL]: Erro ao chamar o serviço de adicionar utilizador:', error);
+        return { success: false, message: `Falha no cadastro: ${error}` };
+    }
+});
+ipcMain.handle('add-role', async (event, dadosCargo) => {
+    console.log('[Main]: Recebido pedido para adicionar novo cargo.');
+    try {
+        await roleService.addRole(dadosCargo);
+        return { success: true, message: 'Cargo cadastrado com sucesso!' };
+    }
+    catch (error) {
+        console.error('[Main FATAL]: Erro ao chamar o servico adicionar cargo:', error);
         return { success: false, message: `Falha no cadastro: ${error}` };
     }
 });
@@ -100,25 +116,25 @@ ipcMain.handle('roles:getAll', async () => {
         return { success: false, message: error.message, data: [] };
     }
 });
-ipcMain.handle('log:acao', async (event, entrada) => {
+ipcMain.handle('log:write', async (event, entrada) => {
     try {
-        const res = await logService.registrar(entrada);
+        const res = await logService.writeLogs(entrada);
         return res;
     }
-    catch (err) {
-        console.error('Erro ao gravar log:', err);
-        return { success: false, error: String(err) };
+    catch (error) {
+        console.error('Erro ao gravar log:', error);
+        return { success: false, error: String(error) };
     }
 });
-ipcMain.handle('logs:obter', async (event, limit = 200) => {
+ipcMain.handle('logs:get', async (event, limit = 200) => {
     try {
-        const res = await logService.listar(limit);
-        console.debug('[Main] logs:obter result success=', res?.success, 'count=', Array.isArray(res?.data) ? res.data.length : 'n/a');
+        const res = await logService.listLogs(limit);
+        console.debug('[Main] logs:get result success=', res?.success, 'count=', Array.isArray(res?.data) ? res.data.length : 'n/a');
         return res;
     }
-    catch (err) {
-        console.error('Erro ao listar logs:', err);
-        return { success: false, error: String(err) };
+    catch (error) {
+        console.error('Erro ao listar logs:', error);
+        return { success: false, error: String(error) };
     }
 });
 //# sourceMappingURL=main.js.map
