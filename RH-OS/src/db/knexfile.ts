@@ -4,12 +4,10 @@
     - As credenciais são carregadas do arquivo .env.
 */
 
-// requires e imports
 const path = require('path');
 const dotenv = require('dotenv');
 import type { Knex } from 'knex';
 
-// Carrega as variáveis do .env 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const config: { [key: string]: Knex.Config } = {

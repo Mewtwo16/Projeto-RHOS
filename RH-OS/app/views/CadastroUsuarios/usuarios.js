@@ -1,26 +1,151 @@
 /*
         Renderer de usuários
         - Responsável por validar o formulário de cadastro e, em caso de sucesso,
-            enviar os dados ao backend via preload (window.api.adicionarUsuario).
-        - Mantém a lógica de validação encapsulada na classe Formulario.
+            enviar os dados ao backend via preload (window.api.addUser).
 */
 
 (function () {
 
-    // Vincula o submit do formulário à rotina de validação + envio
+    async function carregarCargos() {
+        try {
+            const res = await window.api.getAllRoles();
+            if (!res || !res.success) return;
+            const select = document.getElementById('cargo');
+            if (!select) return;
+            const placeholder = select.querySelector('option[value=""]');
+            select.innerHTML = '';
+            if (placeholder) select.appendChild(placeholder);
+
+            (res.data || []).forEach(role => {
+                const opt = document.createElement('option');
+                opt.value = role.role_name;
+                opt.textContent = role.role_name;
+                select.appendChild(opt);
+            });
+        } catch (err) {
+            console.error('Falha ao carregar cargos:', err);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', carregarCargos);
+    } else {
+        carregarCargos();
+    }
+
+    // Preenchimento automático baseado em pesquisa no próprio campo "Nome Completo"
+    const nomeInput = document.getElementById('nome');
+    const emailInput = document.getElementById('email');
+    const cpfInput = document.getElementById('cpf');
+    const dataNascInput = document.getElementById('dataNascimento');
+    const usuarioInput = document.getElementById('usuario');
+    const cargoSelect = document.getElementById('cargo');
+    const listaSugestoes = document.getElementById('lista_sugestoes');
+    const btnPesquisar = document.getElementById('btn_pesquisar_usuario');
+    const btnLimpar = document.getElementById('btn_limpar_usuario');
+
+    function hideSuggestions(){ if (listaSugestoes) listaSugestoes.style.display = 'none'; }
+    function clearSuggestions(){ if (listaSugestoes) listaSugestoes.innerHTML = ''; }
+
+    function preencherFormulario(u){
+        if (!u) return;
+        nomeInput.value = u.full_name || '';
+        emailInput.value = u.email || '';
+        cpfInput.value = u.cpf || '';
+        dataNascInput.value = (u.birth_date || '').toString().slice(0,10);
+        usuarioInput.value = u.login || '';
+
+        if (cargoSelect) {
+            const roleName = u.role || '';
+            if (roleName) {
+                let opt = Array.from(cargoSelect.options).find(o => o.value === roleName);
+                if (!opt) {
+                    opt = document.createElement('option');
+                    opt.value = roleName;
+                    opt.textContent = roleName;
+                    cargoSelect.appendChild(opt);
+                }
+                cargoSelect.value = roleName;
+            }
+        }
+    }
+
+    function renderSugestoes(rows){
+        clearSuggestions();
+        if (!rows || rows.length === 0) { hideSuggestions(); return; }
+        rows.forEach(u => {
+            const li = document.createElement('li');
+            li.style.padding = '8px 10px';
+            li.style.cursor = 'pointer';
+            li.style.borderBottom = '1px solid #eee';
+            li.textContent = `${u.full_name ?? ''} — ${u.email ?? ''} — ${u.login ?? ''} — ${u.role ?? ''}`;
+            li.addEventListener('click', () => {
+                preencherFormulario(u);
+                hideSuggestions();
+            });
+            li.addEventListener('mouseenter', () => li.style.background = '#f7f7f7');
+            li.addEventListener('mouseleave', () => li.style.background = '#fff');
+            listaSugestoes.appendChild(li);
+        });
+        listaSugestoes.style.display = 'block';
+    }
+
+    async function executarPesquisaNome() {
+        const termo = (nomeInput?.value || '').trim();
+        if (!termo || termo.length < 2) { hideSuggestions(); return; }
+        const res = await window.api.searchUsers({ field: 'full_name', value: termo });
+        if (!res || !res.success) { hideSuggestions(); return; }
+        const rows = res.data || [];
+
+        // Se houver correspondência exata única, preenche direto
+        const termoLower = termo.toLowerCase();
+        const matchesExatos = rows.filter(r => (r.full_name || '').toLowerCase() === termoLower);
+        if (matchesExatos.length === 1) {
+            preencherFormulario(matchesExatos[0]);
+            hideSuggestions();
+            return;
+        }
+
+        // Caso contrário, mostra sugestões
+        renderSugestoes(rows.slice(0, 20));
+    }
+
+    function limparFormulario() {
+        nomeInput.value = '';
+        emailInput.value = '';
+        cpfInput.value = '';
+        dataNascInput.value = '';
+        usuarioInput.value = '';
+        const senhaInput = document.getElementById('senha');
+        const senhaConfirmaInput = document.getElementById('senha_confirma');
+        if (senhaInput) senhaInput.value = '';
+        if (senhaConfirmaInput) senhaConfirmaInput.value = '';
+        if (cargoSelect) cargoSelect.value = '';
+        hideSuggestions();
+    }
+
+    if (nomeInput && listaSugestoes) {
+        if (btnPesquisar) btnPesquisar.addEventListener('click', executarPesquisaNome);
+        if (btnLimpar) btnLimpar.addEventListener('click', limparFormulario);
+        nomeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); executarPesquisaNome(); }
+        });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#lista_sugestoes') && !e.target.closest('#nome')) hideSuggestions();
+        });
+    }
+
     const form = document.getElementById('form_usuario');
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Cria uma instância validada do formulário (ou null em caso de erro)
             const formulario = Formulario.criar();
 
             if (formulario) {
                 console.log('FORMULÁRIO VÁLIDO! Objeto criado:', formulario.getDados());
                 const dados = formulario.getDados();
-                // Encaminha para o backend (IPC) via API exposta no preload
-                const resposta = await window.api.adicionarUsuario(dados);
+                const resposta = await window.api.addUser(dados);
 
                 if(resposta.success){
                     console.log(resposta.message);
@@ -34,7 +159,6 @@
         });
     }
 
-    // Classe utilitária para concentrar leitura/validação dos campos
     class Formulario {
         #nome_completo
         #email
@@ -55,8 +179,6 @@
             this.#cargo = dadosUsuario.cargo;
         }
 
-    // Faz a leitura do DOM, limpa erros, valida entradas e, em caso de
-    // sucesso, retorna uma instância de Formulario com os dados consolidados.
     static criar() {
             const formInputs = {
                 nomeInput: document.getElementById('nome'),

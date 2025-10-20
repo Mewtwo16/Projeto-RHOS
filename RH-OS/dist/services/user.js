@@ -3,44 +3,90 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt = require('bcrypt');
 const db = require('../db/db');
 const logService = require('./log');
-async function adicionarUsuario(dbParam, dadosUsuario) {
-    const saltRounds = 10;
-    const senhaHash = await bcrypt.hash(dadosUsuario.senha, saltRounds);
-    await db.transaction(async (trx) => {
-        const [novoUsuarioId] = await trx('usuarios').insert({
-            nome_completo: dadosUsuario.nome_completo,
-            email: dadosUsuario.email,
-            cpf: dadosUsuario.cpf,
-            DataNascimento: dadosUsuario.dataNascimento,
-            login: dadosUsuario.usuario,
-            senha_hash: senhaHash,
-            status: 1,
-            data_criacao: new Date()
+class UserService {
+    async addUser(dadosUsuario) {
+        const saltRounds = 10;
+        const senhaHash = await bcrypt.hash(dadosUsuario.senha, saltRounds);
+        await db.transaction(async (trx) => {
+            const [novoUsuarioId] = await trx('users').insert({
+                full_name: dadosUsuario.nome_completo ?? dadosUsuario.nome,
+                email: dadosUsuario.email,
+                cpf: dadosUsuario.cpf,
+                birth_date: dadosUsuario.dataNascimento,
+                login: dadosUsuario.usuario,
+                password_hash: senhaHash,
+                status: 1,
+                creation_date: new Date()
+            });
+            const role = await trx('roles').where({ role_name: dadosUsuario.cargo }).first();
+            if (!role) {
+                throw new Error(`O cargo '${dadosUsuario.cargo}' não foi encontrado.`);
+            }
+            await trx('role_users').insert({
+                users_id: novoUsuarioId,
+                roles_id: role.id
+            });
+            try {
+                await logService.writeLogs({
+                    user_id: novoUsuarioId,
+                    username: dadosUsuario.usuario,
+                    action: 'create',
+                    resource: 'users',
+                    resource_id: novoUsuarioId,
+                    details: `Criado usuário ${dadosUsuario.usuario} com role ${dadosUsuario.cargo}`
+                }, trx);
+            }
+            catch (error) {
+                console.error('Erro ao gravar log de criação de usuário:', error);
+            }
         });
-        const role = await trx('roles').where({ nome_role: dadosUsuario.cargo }).first();
-        if (!role) {
-            throw new Error(`O cargo '${dadosUsuario.cargo}' não foi encontrado.`);
+    }
+    /**
+     * Lista usuários com opção de filtro por campo.
+     * Campos aceitos: full_name | email | login | cpf | role
+     * Filtro parcial (LIKE) para texto; CPF aceita parcial com digitos.
+     */
+    async searchUsers(filters) {
+        const q = db('users as u')
+            .leftJoin('role_users as ru', 'ru.users_id', 'u.id')
+            .leftJoin('roles as r', 'r.id', 'ru.roles_id')
+            .select('u.id', 'u.full_name', 'u.email', 'u.login', 'u.cpf', 'u.birth_date', 'u.status', db.raw('COALESCE(r.role_name, ?) as role', ['']))
+            .orderBy('u.full_name', 'asc');
+        if (filters && filters.field && typeof filters.value === 'string' && filters.value.length > 0) {
+            const val = `%${filters.value}%`;
+            switch (filters.field) {
+                case 'full_name':
+                    q.where('u.full_name', 'like', val);
+                    break;
+                case 'email':
+                    q.where('u.email', 'like', val);
+                    break;
+                case 'login':
+                    q.where('u.login', 'like', val);
+                    break;
+                case 'cpf':
+                    q.where('u.cpf', 'like', filters.value.replace(/\D+/g, '') + '%');
+                    break;
+                case 'role':
+                    q.where('r.role_name', 'like', val);
+                    break;
+                default:
+                    // Se campo inválido, ignora filtros
+                    break;
+            }
         }
-        await trx('role_usuario').insert({
-            user_id: novoUsuarioId,
-            roles_id: role.id
-        });
-        try {
-            await logService.registrar({
-                user_id: novoUsuarioId,
-                username: dadosUsuario.usuario,
-                action: 'create',
-                resource: 'usuarios',
-                resource_id: novoUsuarioId,
-                details: `Criado usuário ${dadosUsuario.usuario} com role ${dadosUsuario.cargo}`
-            }, trx);
-        }
-        catch (err) {
-            console.error('Erro ao gravar log de criação de usuário:', err);
-        }
-    });
+        const rows = await q;
+        return rows.map((u) => ({
+            id: u.id,
+            full_name: u.full_name,
+            email: u.email,
+            login: u.login,
+            cpf: u.cpf,
+            birth_date: u.birth_date,
+            status: u.status,
+            role: u.role,
+        }));
+    }
 }
-module.exports = {
-    adicionarUsuario: async (dadosUsuario) => adicionarUsuario(db, dadosUsuario)
-};
+module.exports = new UserService();
 //# sourceMappingURL=user.js.map
