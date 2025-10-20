@@ -1,10 +1,11 @@
 /*
-    Configuração das interfaces que ditam a regra de comunicação com o banco (login)
+    Tipos compartilhados entre main/preload/renderer
 */
 
 export interface RespostaLogin {
     success: boolean;
     message: string;
+    userId?: number;
 }
 
 export interface RespostaPagina {
@@ -12,26 +13,24 @@ export interface RespostaPagina {
     content: string;
 }
 
-export interface Role {
+export interface Cargo {
     id: number;
-    nome_role: string;
-    descricao?: string;
+    role_name: string;
+    description?: string;
 }
 
 export interface RespostaRoles {
     success: boolean;
     message?: string;
-    data: Role[];
+    data: Cargo[];
 }
-
 
 export interface IElectronAPI {
     submitLogin: (usuario: string, senha: string) => Promise<RespostaLogin>;
     getPage: (pageName: string) => Promise<RespostaPagina>;
-    adicionarUsuario: (dadosUsuario: any) => Promise<{ success: boolean; message: string }>;
+    addUser: (dadosUsuario: any) => Promise<{ success: boolean; message: string }>;
+    addRole: (dadosCargo: any) => Promise<{ success: boolean; message: string }>;
     getAllRoles: () => Promise<RespostaRoles>;
-    logAction?: (entry: any) => Promise<{ success: boolean } | any>;
-    getLogs?: (limit?: number) => Promise<{ success: boolean; data?: any[] } | any>;
-    registrarLog?: (entrada: any) => Promise<{ success: boolean } | any>;
-    obterLogs?: (limit?: number) => Promise<{ success: boolean; data?: any[] } | any>;
+    logAction: (entry: any) => Promise<{ success: boolean } | any>;
+    getLogs: (limit?: number) => Promise<{ success: boolean; data?: any[] } | any>;
 }

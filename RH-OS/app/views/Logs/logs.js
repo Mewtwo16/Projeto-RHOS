@@ -23,7 +23,7 @@ if (list) {
 async function loadLogs() {
   list.innerHTML = '<p>Carregando logs...</p>';
   try {
-    const res = await window.api.obterLogs(200);
+  const res = await window.api.getLogs(200);
   if (raw) raw.textContent = JSON.stringify(res, null, 2);
     if (!res || !res.success) {
       list.innerHTML = `<p>Erro ao carregar logs: ${res?.error || res?.message || 'desconhecido'}</p>`;
@@ -51,17 +51,6 @@ async function loadLogs() {
   if (btnSearch) {
     btnSearch.addEventListener('click', () => loadLogs());
   }
-
-  // Subscreve eventos opcionais (se expostos no preload), para auto refresh
-  const unsubscribe = window.api.onLogsUpdated?.((p) => { loadLogs(); });
-  const unsubNew = window.api.onLogNew?.((row) => {
-    try {
-      const item = renderLogItem(row);
-      list.prepend(item);
-    } catch (err) {
-      loadLogs();
-    }
-  });
 
   window.addEventListener('beforeunload', () => {
     if (typeof unsubscribe === 'function') unsubscribe();
