@@ -33,6 +33,108 @@
         carregarCargos();
     }
 
+    // Preenchimento automático baseado em pesquisa no próprio campo "Nome Completo"
+    const nomeInput = document.getElementById('nome');
+    const emailInput = document.getElementById('email');
+    const cpfInput = document.getElementById('cpf');
+    const dataNascInput = document.getElementById('dataNascimento');
+    const usuarioInput = document.getElementById('usuario');
+    const cargoSelect = document.getElementById('cargo');
+    const listaSugestoes = document.getElementById('lista_sugestoes');
+    const btnPesquisar = document.getElementById('btn_pesquisar_usuario');
+    const btnLimpar = document.getElementById('btn_limpar_usuario');
+
+    function hideSuggestions(){ if (listaSugestoes) listaSugestoes.style.display = 'none'; }
+    function clearSuggestions(){ if (listaSugestoes) listaSugestoes.innerHTML = ''; }
+
+    function preencherFormulario(u){
+        if (!u) return;
+        nomeInput.value = u.full_name || '';
+        emailInput.value = u.email || '';
+        cpfInput.value = u.cpf || '';
+        dataNascInput.value = (u.birth_date || '').toString().slice(0,10);
+        usuarioInput.value = u.login || '';
+
+        if (cargoSelect) {
+            const roleName = u.role || '';
+            if (roleName) {
+                let opt = Array.from(cargoSelect.options).find(o => o.value === roleName);
+                if (!opt) {
+                    opt = document.createElement('option');
+                    opt.value = roleName;
+                    opt.textContent = roleName;
+                    cargoSelect.appendChild(opt);
+                }
+                cargoSelect.value = roleName;
+            }
+        }
+    }
+
+    function renderSugestoes(rows){
+        clearSuggestions();
+        if (!rows || rows.length === 0) { hideSuggestions(); return; }
+        rows.forEach(u => {
+            const li = document.createElement('li');
+            li.style.padding = '8px 10px';
+            li.style.cursor = 'pointer';
+            li.style.borderBottom = '1px solid #eee';
+            li.textContent = `${u.full_name ?? ''} — ${u.email ?? ''} — ${u.login ?? ''} — ${u.role ?? ''}`;
+            li.addEventListener('click', () => {
+                preencherFormulario(u);
+                hideSuggestions();
+            });
+            li.addEventListener('mouseenter', () => li.style.background = '#f7f7f7');
+            li.addEventListener('mouseleave', () => li.style.background = '#fff');
+            listaSugestoes.appendChild(li);
+        });
+        listaSugestoes.style.display = 'block';
+    }
+
+    async function executarPesquisaNome() {
+        const termo = (nomeInput?.value || '').trim();
+        if (!termo || termo.length < 2) { hideSuggestions(); return; }
+        const res = await window.api.searchUsers({ field: 'full_name', value: termo });
+        if (!res || !res.success) { hideSuggestions(); return; }
+        const rows = res.data || [];
+
+        // Se houver correspondência exata única, preenche direto
+        const termoLower = termo.toLowerCase();
+        const matchesExatos = rows.filter(r => (r.full_name || '').toLowerCase() === termoLower);
+        if (matchesExatos.length === 1) {
+            preencherFormulario(matchesExatos[0]);
+            hideSuggestions();
+            return;
+        }
+
+        // Caso contrário, mostra sugestões
+        renderSugestoes(rows.slice(0, 20));
+    }
+
+    function limparFormulario() {
+        nomeInput.value = '';
+        emailInput.value = '';
+        cpfInput.value = '';
+        dataNascInput.value = '';
+        usuarioInput.value = '';
+        const senhaInput = document.getElementById('senha');
+        const senhaConfirmaInput = document.getElementById('senha_confirma');
+        if (senhaInput) senhaInput.value = '';
+        if (senhaConfirmaInput) senhaConfirmaInput.value = '';
+        if (cargoSelect) cargoSelect.value = '';
+        hideSuggestions();
+    }
+
+    if (nomeInput && listaSugestoes) {
+        if (btnPesquisar) btnPesquisar.addEventListener('click', executarPesquisaNome);
+        if (btnLimpar) btnLimpar.addEventListener('click', limparFormulario);
+        nomeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); executarPesquisaNome(); }
+        });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#lista_sugestoes') && !e.target.closest('#nome')) hideSuggestions();
+        });
+    }
+
     const form = document.getElementById('form_usuario');
     if (form) {
         form.addEventListener('submit', async (e) => {

@@ -35,6 +35,16 @@ class RoleService {
             details: `Criado cargo ${dadosCargo.role_name}`
         });
     }
+
+    async searchRoles(filters?: { field?: string; value?: string }): Promise<Role[]> {
+        const q = db<Role>('roles').select('*').orderBy('role_name', 'asc');
+        if (filters && filters.field && typeof filters.value === 'string' && filters.value.length > 0) {
+            const val = `%${filters.value}%`;
+            if (filters.field === 'role_name') q.where('role_name', 'like', val);
+            else if (filters.field === 'description') q.where('description', 'like', val);
+        }
+        return q;
+    }
 }
 
 

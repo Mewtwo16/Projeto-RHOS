@@ -29,6 +29,22 @@ export interface IElectronAPI {
         message: string;
     }>;
     getAllRoles: () => Promise<RespostaRoles>;
+    searchUsers: (filters?: {
+        field?: string;
+        value?: string;
+    }) => Promise<{
+        success: boolean;
+        data: any[];
+        message?: string;
+    }>;
+    searchRoles: (filters?: {
+        field?: string;
+        value?: string;
+    }) => Promise<{
+        success: boolean;
+        data: Cargo[];
+        message?: string;
+    }>;
     logAction: (entry: any) => Promise<{
         success: boolean;
     } | any>;

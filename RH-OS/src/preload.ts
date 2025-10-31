@@ -26,6 +26,10 @@ const api: IElectronAPI = {
         ipcRenderer.invoke('add-role', dadosCargo),
     getAllRoles: (): Promise<RespostaRoles> => 
         ipcRenderer.invoke('roles:getAll'),
+    searchUsers: (filters?: { field?: string; value?: string }) =>
+        ipcRenderer.invoke('users:search', filters),
+    searchRoles: (filters?: { field?: string; value?: string }) =>
+        ipcRenderer.invoke('roles:search', filters),
     
     logAction: async (entry: any) => {
         const uid = await getCurrentUserId();

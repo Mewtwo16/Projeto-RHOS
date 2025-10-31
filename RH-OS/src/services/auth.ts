@@ -4,7 +4,8 @@ const db = require('../db/db') as Knex;
 
 import type { RespostaLogin } from '../types';
 
-async function login(usuario: string, senha: string): Promise<RespostaLogin> {
+class AuthService {
+  async login(usuario: string, senha: string): Promise<RespostaLogin> {
   try {
     const user = await db('users').where({ login: usuario }).first();
     if (user && user.status === 1 && await bcrypt.compare(senha, user.password_hash)) {
@@ -18,4 +19,6 @@ async function login(usuario: string, senha: string): Promise<RespostaLogin> {
   }
 }
 
-module.exports = { login };
+}
+
+module.exports = new AuthService;

@@ -6,15 +6,14 @@
 // Requires
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const login = require('./services/auth').login;
+const auth = require('./services/auth');
 const db = require('./db/db');
 const userService = require('./services/user');
 const roleService = require('./services/role');
 const logService = require('./services/log');
 const fs = require('fs').promises;
 
-let currentUserId: number | null = null;
-
+let userSession: any;
 
 import type { RespostaLogin } from './types';
 import type { IpcMainInvokeEvent } from 'electron';
@@ -31,7 +30,8 @@ function createLoginWindow() {
     },
   });
   loginWindow.maximize();
-  loginWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'));
+  loginWindow.loadFile(path.join(__dirname, '../app/views/login/login.html'))
+  
 }
 
 function createMainWindow() {
@@ -69,9 +69,14 @@ app.on('window-all-closed', () => {
 
 // COMUNICAÇÃO IPC
 ipcMain.handle('login:submit', async (event: IpcMainInvokeEvent, usuario: string, senha: string): Promise<RespostaLogin> => {
-  const resultadoLogin = await login(usuario, senha);
+  const resultadoLogin = await auth.login(usuario, senha);
   if (resultadoLogin.success) {
-    currentUserId = resultadoLogin.userId ?? null;
+    try {
+      userSession = await auth.session(usuario);
+      console.log('Seção criada com sucesso')
+    } catch(error){
+      console.error(`[Main FATAL]: Falha na criação de seção erro: ${error}`);
+    }
     createMainWindow();
     BrowserWindow.fromWebContents(event.sender)?.close();
   }
@@ -79,7 +84,7 @@ ipcMain.handle('login:submit', async (event: IpcMainInvokeEvent, usuario: string
 });
 
 ipcMain.handle('session:get', async () => {
-  return { userId: currentUserId };
+  return userSession;
 });
 
 ipcMain.handle('app:get-page', async (event: IpcMainInvokeEvent, pageName: string) => {
@@ -94,7 +99,7 @@ ipcMain.handle('app:get-page', async (event: IpcMainInvokeEvent, pageName: strin
 });
 
 ipcMain.handle('add-user', async (event: IpcMainInvokeEvent, dadosUsuario: any) => {
-    console.log('[Main]: Recebido pedido para adicionar novo utilizador.');
+  console.log('[Main]: Recebido pedido para adicionar novo utilizador.');
 
   try {
     await userService.addUser(dadosUsuario);
@@ -108,13 +113,13 @@ ipcMain.handle('add-user', async (event: IpcMainInvokeEvent, dadosUsuario: any) 
 
 ipcMain.handle('add-role', async (event: IpcMainInvokeEvent, dadosCargo: any) => {
   console.log('[Main]: Recebido pedido para adicionar novo cargo.');
-    try {
-      await roleService.addRole(dadosCargo);
-      return { success: true, message: 'Cargo cadastrado com sucesso!'};
-    } catch (error) {
-      console.error('[Main FATAL]: Erro ao chamar o servico adicionar cargo:', error);
-      return {success: false, message: `Falha no cadastro: ${error}`};
-    }
+  try {
+    await roleService.addRole(dadosCargo);
+    return { success: true, message: 'Cargo cadastrado com sucesso!' };
+  } catch (error) {
+    console.error('[Main FATAL]: Erro ao chamar o servico adicionar cargo:', error);
+    return { success: false, message: `Falha no cadastro: ${error}` };
+  }
 })
 
 ipcMain.handle('roles:getAll', async () => {
@@ -123,6 +128,26 @@ ipcMain.handle('roles:getAll', async () => {
     return { success: true, data: roles };
   } catch (error: any) {
     console.error('[Main FATAL]: Erro ao buscar cargos:', error);
+    return { success: false, message: error.message, data: [] };
+  }
+});
+
+ipcMain.handle('users:search', async (event: IpcMainInvokeEvent, filters?: { field?: string; value?: string }) => {
+  try {
+    const users = await userService.searchUsers(filters);
+    return { success: true, data: users };
+  } catch (error: any) {
+    console.error('[Main FATAL]: Erro ao pesquisar usuários:', error);
+    return { success: false, message: error.message, data: [] };
+  }
+});
+
+ipcMain.handle('roles:search', async (event: IpcMainInvokeEvent, filters?: { field?: string; value?: string }) => {
+  try {
+    const roles = await roleService.searchRoles(filters);
+    return { success: true, data: roles };
+  } catch (error: any) {
+    console.error('[Main FATAL]: Erro ao pesquisar cargos:', error);
     return { success: false, message: error.message, data: [] };
   }
 });

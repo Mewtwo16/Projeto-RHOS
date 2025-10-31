@@ -4,9 +4,21 @@
             <h2 class="form-title">Cargos</h2>
             <div>
                 <label for="id">Cod:<input class="id" id="id"></label>
-                <label for="Cargo">Cargo:<input class="Cargo" id="cargo"></label>
-                <label for="descricao">Descrição:<input class="descricao" id="descricao"></label>
+                <label for="Cargo">Cargo:
+                    <span style="display:inline-flex; gap:8px; align-items:center;">
+                        <input class="Cargo" id="cargo" placeholder="Digite o cargo">
+                    </span>
+                </label>
+                <!-- Sugestões de cargos -->
+                <div id="cargo_sugestoes" style="position: relative;">
+                    <ul id="lista_cargo_sugestoes" style="list-style:none; margin: 4px 0 0; padding:0; position: absolute; z-index: 10; background:#fff; border:1px solid #ccc; width:100%; max-height: 240px; overflow:auto; display:none; box-shadow: 0 8px 16px rgba(0,0,0,0.08);"></ul>
+                </div>
+                <label for="descricao">Descrição:<input class="descricao" id="descricao" placeholder="Descrição do cargo"></label>
             </div>
-            <button type="submit">Cadastrar</button>
+            <div class="button-group" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-start; margin-top:8px;">
+                <button type="button" id="btn_pesquisar_cargo" title="Pesquisar cargo">Pesquisar</button>
+                <button type="button" id="btn_limpar_cargo" title="Limpar campos do cargo">Limpar</button>
+                <button type="submit">Cadastrar</button>
+            </div>
         </form>
     </main>

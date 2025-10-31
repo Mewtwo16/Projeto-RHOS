@@ -114,3 +114,23 @@ CREATE TABLE IF NOT EXISTS `RHOS`.`audit_logs` (
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+
+
+-- Insert usuario + role
+
+INSERT INTO RHOS.roles (role_name, description)
+VALUES ('Administrador', 'Administrador do sistema')
+ON DUPLICATE KEY UPDATE description = VALUES(description);
+
+-- Adiministrador login: admin senha: admin123
+INSERT INTO RHOS.users (full_name, email, login, password_hash, cpf, birth_date, status, creation_date)
+VALUES ('Admin Teste', 'admin@teste.com', 'admin', '$2b$10$DeecaPnSsA.AVxygB6oIdu3hbNoQVmIysbYEdg5/9rKrsuw7JEzdC', '12345678901', '1990-01-01', 1, NOW());
+INSERT INTO RHOS.role_users (users_id, roles_id)
+SELECT u.id, r.id
+FROM RHOS.users u
+JOIN RHOS.roles r ON r.role_name = 'Administrador'
+WHERE u.login = 'admin'
+ON DUPLICATE KEY UPDATE users_id = users_id;
+

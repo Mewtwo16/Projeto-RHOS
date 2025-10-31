@@ -41,52 +41,6 @@ class UserService {
             }
         });
     }
-    /**
-     * Lista usuários com opção de filtro por campo.
-     * Campos aceitos: full_name | email | login | cpf | role
-     * Filtro parcial (LIKE) para texto; CPF aceita parcial com digitos.
-     */
-    async searchUsers(filters) {
-        const q = db('users as u')
-            .leftJoin('role_users as ru', 'ru.users_id', 'u.id')
-            .leftJoin('roles as r', 'r.id', 'ru.roles_id')
-            .select('u.id', 'u.full_name', 'u.email', 'u.login', 'u.cpf', 'u.birth_date', 'u.status', db.raw('COALESCE(r.role_name, ?) as role', ['']))
-            .orderBy('u.full_name', 'asc');
-        if (filters && filters.field && typeof filters.value === 'string' && filters.value.length > 0) {
-            const val = `%${filters.value}%`;
-            switch (filters.field) {
-                case 'full_name':
-                    q.where('u.full_name', 'like', val);
-                    break;
-                case 'email':
-                    q.where('u.email', 'like', val);
-                    break;
-                case 'login':
-                    q.where('u.login', 'like', val);
-                    break;
-                case 'cpf':
-                    q.where('u.cpf', 'like', filters.value.replace(/\D+/g, '') + '%');
-                    break;
-                case 'role':
-                    q.where('r.role_name', 'like', val);
-                    break;
-                default:
-                    // Se campo inválido, ignora filtros
-                    break;
-            }
-        }
-        const rows = await q;
-        return rows.map((u) => ({
-            id: u.id,
-            full_name: u.full_name,
-            email: u.email,
-            login: u.login,
-            cpf: u.cpf,
-            birth_date: u.birth_date,
-            status: u.status,
-            role: u.role,
-        }));
-    }
 }
 module.exports = new UserService();
 //# sourceMappingURL=user.js.map
