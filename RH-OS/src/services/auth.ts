@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcryptjs';
 import type { Knex } from 'knex';
 const db = require('../db/db') as Knex;
 

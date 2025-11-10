@@ -1,7 +1,5 @@
 /*
     knexfile.ts
-    - Configuração do Knex para diferentes ambientes (aqui usamos 'development').
-    - As credenciais são carregadas do arquivo .env.
 */
 
 const path = require('path');
