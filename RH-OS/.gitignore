@@ -1,0 +1,12 @@
+node_modules
+dist
+out
+.DS_Store
+.eslintcache
+*.log*
+docs
+
+# Variáveis de ambiente (não commitar!)
+.env
+.env.local
+.env.*.local

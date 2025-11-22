@@ -1,0 +1,72 @@
+appId: com.rhos.app
+productName: RH-OS
+directories:
+  buildResources: build
+  output: dist
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!docs/*'
+  - '!DOCS/*'
+  - '!dist/*'
+asarUnpack:
+  - resources/**
+  - node_modules/**
+win:
+  executableName: RH-OS
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.png
+nsis:
+  artifactName: ${productName}-${version}-Setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  perMachine: false
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  license: LICENSE
+  installerIcon: build/icon.png
+  uninstallerIcon: build/icon.png
+  installerHeaderIcon: build/icon.png
+mac:
+  target:
+    - dmg
+    - zip
+  category: public.app-category.business
+  icon: build/icon.png
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  notarize: false
+dmg:
+  artifactName: ${productName}-${version}.${ext}
+  title: ${productName} ${version}
+  icon: build/icon.png
+linux:
+  target:
+    - AppImage
+    - deb
+  maintainer: André Ricardo <contato@rhos.com>
+  category: Office
+  icon: build/icon.png
+  desktop:
+    Name: RH-OS
+    Comment: Sistema de Gerenciamento de Recursos Humanos
+    Categories: Office;Finance;
+appImage:
+  artifactName: ${productName}-${version}.${ext}
+npmRebuild: false
+electronDist: node_modules/electron/dist
+electronVersion: 38.4.0
+publish: null
