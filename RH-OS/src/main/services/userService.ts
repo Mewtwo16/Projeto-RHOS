@@ -21,7 +21,7 @@ class UserService {
         })
 
         const role = await trx('profiles').where({ profile_name: userData.role }).first()
-        if (!role) throw new Error(`Cargo '${userData.role}' não encontrado`)
+        if (!role) throw new Error(`Perfil '${userData.role}' não encontrado`)
 
         await trx('profile_users').insert({
           users_id: newUserID,
@@ -31,8 +31,8 @@ class UserService {
         await logService.write({
           user_id: loggedUser?.id || null,
           who: loggedUser?.usuario || 'system',
-          where: 'users',
-          what: `Criou usuário ${userData.user} com cargo ${userData.role}`
+          where: 'Usuários',
+          what: `Criou usuário ${userData.user} com perfil ${userData.role}`
         }, trx)
       })
 
@@ -130,7 +130,7 @@ class UserService {
 
         if (userData.role) {
           const role = await trx('profiles').where({ profile_name: userData.role }).first()
-          if (!role) throw new Error(`Cargo '${userData.role}' não encontrado`)
+          if (!role) throw new Error(`Perfil '${userData.role}' não encontrado`)
 
           await trx('profile_users').where({ users_id: userId }).delete()
 
@@ -143,7 +143,7 @@ class UserService {
         await logService.write({
           user_id: loggedUser?.id || null,
           who: loggedUser?.usuario || 'system',
-          where: 'users',
+          where: 'Usuários',
           what: `Atualizou usuário ${userData.user || existingUser.login}`
         }, trx)
       })

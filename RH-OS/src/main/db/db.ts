@@ -1,8 +1,15 @@
 import knex from 'knex'
 import dotenv from 'dotenv'
 import type { Knex } from 'knex'
+import path from 'path'
+import { app } from 'electron'
 
-dotenv.config()
+// Carregar .env do diretório correto
+const envPath = app.isPackaged
+  ? path.join(process.resourcesPath, '.env')
+  : path.join(__dirname, '../../../.env')
+
+dotenv.config({ path: envPath })
 
 const config: { [key: string]: Knex.Config } = {
   development: {

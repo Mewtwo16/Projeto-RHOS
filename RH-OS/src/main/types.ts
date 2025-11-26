@@ -79,7 +79,7 @@ export interface LogEntry {
 export interface IElectronAPI {
   submitLogin: (usuario: string, senha: string) => Promise<LoginResponse>
   addUser: (dadosUsuario: addUser) => Promise<AnyResponse>
-  addProfile: (dadosCargo: addProfile) => Promise<AnyResponse>
+  addProfile: (profileData: addProfile) => Promise<AnyResponse>
   getAllRoles: () => Promise<Profile[] | AnyResponse>
   searchUsers: (filters?: { field?: string; value?: string }) => Promise<User[] | AnyResponse>
   searchProfiles: (filters?: { field?: string; value?: string }) => Promise<Profile[] | AnyResponse>

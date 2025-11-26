@@ -12,8 +12,8 @@ class AuthService {
         await logService.write({
           user_id: null,
           who: usuario,
-          where: 'auth',
-          what: 'Login failed: user not found'
+          where: 'Autenticação',
+          what: 'Falha no login: usuário não encontrado'
         })
         return { success: false, message: 'Usuário inválido ou inexistente' }
       }
@@ -21,8 +21,8 @@ class AuthService {
         await logService.write({
           user_id: user.id,
           who: usuario,
-          where: 'auth',
-          what: 'Login failed: user inactive'
+          where: 'Autenticação',
+          what: 'Falha no login: usuário inativo'
         })
         return { success: false, message: 'Usuário desativado' }
       }
@@ -32,8 +32,8 @@ class AuthService {
         await logService.write({
           user_id: user.id,
           who: usuario,
-          where: 'auth',
-          what: 'Login failed: invalid password'
+          where: 'Autenticação',
+          what: 'Falha no login: senha inválida'
         })
         return { success: false, message: 'Senha inválida' }
       }
@@ -53,8 +53,8 @@ class AuthService {
       await logService.write({
         user_id: user.id,
         who: usuario,
-        where: 'auth',
-        what: 'Login successful'
+        where: 'Autenticação',
+        what: 'Login realizado com sucesso'
       })
       
       return { success: true, message: 'Login bem-sucedido', token }

@@ -38,8 +38,8 @@ class ProfileService {
         await logService.write({
           user_id: loggedUser?.id || null,
           who: loggedUser?.usuario || 'system',
-          where: 'profiles',
-          what: `Criou cargo ${profileData.profile_name} com ${assigned.length} permissões`
+          where: 'Perfis',
+          what: `Criou perfil ${profileData.profile_name} com ${assigned.length} permissões`
         }, trx)
 
         return { profileId, assigned }
@@ -47,12 +47,12 @@ class ProfileService {
 
       return {
         success: true,
-        message: `Cargo criado com ${result.assigned.length} permissões`
+        message: `Perfil criado com ${result.assigned.length} permissões`
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Erro ao criar cargo'
+        message: error.message || 'Erro ao criar perfil'
       }
     }
   }
@@ -92,7 +92,7 @@ class ProfileService {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Erro ao buscar cargo'
+        message: error.message || 'Erro ao buscar perfil'
       }
     }
   }
@@ -119,7 +119,7 @@ class ProfileService {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Erro ao listar cargos'
+        message: error.message || 'Erro ao listar perfis'
       }
     }
   }
@@ -129,7 +129,7 @@ class ProfileService {
       const result = await db.transaction(async (trx) => {
         const existingProfile = await trx('profiles').where({ id: profileId }).first()
         if (!existingProfile) {
-          throw new Error('Cargo não encontrado')
+          throw new Error('Perfil não encontrado')
         }
 
         if (profileData.description !== undefined) {
@@ -161,8 +161,8 @@ class ProfileService {
         await logService.write({
           user_id: loggedUser?.id || null,
           who: loggedUser?.usuario || 'system',
-          where: 'profiles',
-          what: `Atualizou cargo ${existingProfile.profile_name} com ${assigned.length} permissões`
+          where: 'Perfis',
+          what: `Atualizou perfil ${existingProfile.profile_name} com ${assigned.length} permissões`
         }, trx)
 
         return { assigned }
@@ -170,12 +170,12 @@ class ProfileService {
 
       return {
         success: true,
-        message: `Cargo atualizado com sucesso`
+        message: `Perfil atualizado com sucesso`
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Erro ao atualizar cargo'
+        message: error.message || 'Erro ao atualizar perfil'
       }
     }
   }

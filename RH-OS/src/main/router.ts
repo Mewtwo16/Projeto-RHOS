@@ -20,13 +20,11 @@ route.get('/api/health', healthRoute)
 
 route.post('/api/login', loginIsValid(loginSchema), loginRoute)
 
-// ====== USERS ROUTES (padronizado: plural) ======
 route.post('/api/users', authenticateToken, requirePermissions('users:create'), userIsValid(addUserSchema), addUserRoute)
 route.get('/api/users', authenticateToken, requirePermissions('users:view'), listUsersRoute)
 route.get('/api/users/:id', authenticateToken, requirePermissions('users:view'), getUserRoute)
 route.put('/api/users/:id', authenticateToken, requirePermissions('users:update'), updateUserRoute)
 
-// ====== PROFILES ROUTES (padronizado: plural) ======
 route.post('/api/profiles', authenticateToken, requirePermissions('profiles:create'), profileIsValid(addProfileSchema), addProfileRoute)
 route.get('/api/profiles', authenticateToken, requirePermissions('profiles:view'), listProfilesRoute)
 route.get('/api/profiles/:id', authenticateToken, requirePermissions('profiles:view'), getProfileRoute)

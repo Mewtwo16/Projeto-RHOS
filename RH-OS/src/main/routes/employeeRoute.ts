@@ -53,7 +53,6 @@ router.post('/', employeeIsValid(addEmployeeSchema), async (req: AuthRequest, re
   try {
     const { full_name, cpf } = req.body
     
-    // Verifica se CPF já existe
     const existente = await employeeService.buscarFuncionarioPorCPF(cpf)
     if (existente) {
       return res.status(400).json({
@@ -173,7 +172,7 @@ router.get('/relatorio/consolidado', async (req: AuthRequest, res: Response) => 
       relatorio.push({
         nome: func.full_name,
         cpf: func.cpf,
-        cargo: func.position_name,
+        position: func.position_name,
         status: func.status,
         salario_bruto: calculo.salarioBruto,
         inss: calculo.inss,

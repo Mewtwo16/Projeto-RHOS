@@ -8,21 +8,27 @@ files:
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
-  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!docs/*'
   - '!DOCS/*'
   - '!dist/*'
-asarUnpack:
-  - resources/**
-  - node_modules/**
+  - '.env.example'
+  - out/**
+extraResources:
+  - from: '.env'
+    to: '.env.example'
+  - from: 'src/main/database/database.sql'
+    to: 'database.sql'
+  - from: 'INSTALL.txt'
+    to: 'INSTALL.txt'
 win:
   executableName: RH-OS
   target:
     - target: nsis
       arch:
         - x64
-  icon: build/icon.png
+  icon: build/icon.ico
 nsis:
   artifactName: ${productName}-${version}-Setup.${ext}
   shortcutName: ${productName}
@@ -33,9 +39,9 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   license: LICENSE
-  installerIcon: build/icon.png
-  uninstallerIcon: build/icon.png
-  installerHeaderIcon: build/icon.png
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
 mac:
   target:
     - dmg

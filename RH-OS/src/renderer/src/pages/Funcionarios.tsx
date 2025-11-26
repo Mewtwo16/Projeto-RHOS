@@ -432,8 +432,10 @@ function Funcionarios() {
           {formatarMoeda(
             funcionarios.reduce((acc, f) => {
               const salario = typeof f.current_salary === 'number' ? f.current_salary : parseFloat(f.current_salary) || 0
-              return acc + salario
-            }, 0) * 1.383
+              const valeRefeicao = typeof f.meal_voucher === 'number' ? f.meal_voucher : parseFloat(f.meal_voucher) || 0
+              // Custo Total = Salário + Encargos (38.3%) + Vale Refeição
+              return acc + salario + (salario * 0.383) + valeRefeicao
+            }, 0)
           )}
         </div>
       </div>

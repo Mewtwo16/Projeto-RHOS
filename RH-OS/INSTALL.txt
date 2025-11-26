@@ -1,0 +1,67 @@
+# 🚀 Guia de Instalação - RH-OS
+
+## 📋 Pré-requisitos
+
+1. **MySQL 8.0+** instalado e rodando
+2. **Windows 10/11** (64-bit)
+
+## 📦 Instalação
+
+### 1. Instalar o Aplicativo
+Execute `RH-OS-1.0.0-Setup.exe` e siga o assistente de instalação.
+
+### 2. Configurar o Banco de Dados
+
+#### a) Criar o banco de dados
+Localize o arquivo `database.sql` na pasta resources do aplicativo instalado:
+- Padrão: `C:\Users\[SEU_USUARIO]\AppData\Local\Programs\RH-OS\resources\database.sql`
+
+Execute o script SQL no MySQL:
+```bash
+# No CMD ou PowerShell
+mysql -u root -p < "C:\Users\[SEU_USUARIO]\AppData\Local\Programs\RH-OS\resources\database.sql"
+```
+
+Ou no MySQL Workbench: File > Open SQL Script > Selecionar database.sql > Execute
+
+#### b) Configurar credenciais
+Na primeira execução do aplicativo, um arquivo `.env` será criado automaticamente a partir do `.env.example`.
+
+1. Você verá um aviso solicitando configuração
+2. Feche o aplicativo
+3. Vá até: `C:\Users\[SEU_USUARIO]\AppData\Local\Programs\RH-OS\resources\.env`
+4. Edite o arquivo `.env` com suas credenciais do MySQL:
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=sua_senha_mysql_aqui
+DB_DATABASE=RHOS
+
+EXPRESS_PORT=4040
+JWT_SECRET="243FD5B3C3D58699643C88110F4959DA0872DFDEB3D6364211E3455B2E697DF5"
+JWT_EXPIRES_IN=8h
+```
+5. Salve o arquivo
+
+### 3. Iniciar o Aplicativo
+Execute o RH-OS pelo atalho criado na área de trabalho ou menu iniciar.
+
+## 🔑 Primeiro Acesso
+
+Após configurar, use as credenciais padrão criadas pelo script SQL.
+**Importante:** Altere a senha após o primeiro acesso!
+
+## ❗ Solução de Problemas
+
+### Erro de conexão com banco
+- Verifique se o MySQL está rodando
+- Confirme as credenciais no arquivo `.env`
+- Verifique se o banco `RHOS` foi criado
+
+### Arquivo .env não encontrado
+- Copie `.env.example` para `.env` na pasta `resources`
+- Certifique-se de editar com suas credenciais
+
+## 📞 Suporte
+GitHub: https://github.com/Mewtwo16/RHOS

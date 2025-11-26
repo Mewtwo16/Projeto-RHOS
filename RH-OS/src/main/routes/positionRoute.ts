@@ -7,12 +7,12 @@ const router = Router()
 
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const apenasAtivos = req.query.actives !== 'false'
-    const cargos = await positionService.listarCargos(apenasAtivos)
+    const onlyActive = req.query.actives !== 'false'
+    const positions = await positionService.listPositions(onlyActive)
     
     res.json({
       success: true,
-      data: cargos
+      data: positions
     })
   } catch (error) {
     console.error('Erro ao listar cargos:', error)
@@ -26,9 +26,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = parseInt(req.params.id)
-    const cargo = await positionService.buscarCargoPorId(id)
+    const position = await positionService.findPositionById(id)
     
-    if (!cargo) {
+    if (!position) {
       return res.status(404).json({
         success: false,
         message: 'Cargo não encontrado'
@@ -37,7 +37,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     
     res.json({
       success: true,
-      data: cargo
+      data: position
     })
   } catch (error) {
     console.error('Erro ao buscar cargo:', error)
@@ -59,7 +59,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       })
     }
     
-    const id = await positionService.criarCargo(req.body)
+    const id = await positionService.createPosition(req.body)
     
     await logService.write({
       user_id: req.user?.id,
@@ -85,23 +85,23 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = parseInt(req.params.id)
-    const cargo = await positionService.buscarCargoPorId(id)
+    const position = await positionService.findPositionById(id)
     
-    if (!cargo) {
+    if (!position) {
       return res.status(404).json({
         success: false,
         message: 'Cargo não encontrado'
       })
     }
     
-    const sucesso = await positionService.atualizarCargo(id, req.body)
+    const success = await positionService.updatePosition(id, req.body)
     
-    if (sucesso) {
+    if (success) {
       await logService.write({
         user_id: req.user?.id,
         who: req.user?.usuario || 'Sistema',
         where: 'Cargos CLT',
-        what: `Atualizou o cargo: ${cargo.position_name}`
+        what: `Atualizou o cargo: ${position.position_name}`
       })
       
       res.json({
@@ -126,31 +126,31 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = parseInt(req.params.id)
-    const cargo = await positionService.buscarCargoPorId(id)
+    const position = await positionService.findPositionById(id)
     
-    if (!cargo) {
+    if (!position) {
       return res.status(404).json({
         success: false,
         message: 'Cargo não encontrado'
       })
     }
     
-    const emUso = await positionService.cargoEmUso(id)
-    if (emUso) {
+    const inUse = await positionService.isPositionInUse(id)
+    if (inUse) {
       return res.status(400).json({
         success: false,
         message: 'Não é possível deletar. Cargo está vinculado a funcionários ativos'
       })
     }
     
-    const sucesso = await positionService.deletarCargo(id)
+    const success = await positionService.deletePosition(id)
     
-    if (sucesso) {
+    if (success) {
       await logService.write({
         user_id: req.user?.id,
         who: req.user?.usuario || 'Sistema',
         where: 'Cargos CLT',
-        what: `Deletou o cargo: ${cargo.position_name}`
+        what: `Deletou o cargo: ${position.position_name}`
       })
       
       res.json({

@@ -99,9 +99,6 @@ export const addEmployeeSchema = Joi.object({
   notes: Joi.string().allow(null, '').optional()
 })
 
-/**
- * Middleware de validação para funcionários
- */
 export function employeeIsValid(schema: Joi.ObjectSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body, { 
@@ -126,9 +123,6 @@ export function employeeIsValid(schema: Joi.ObjectSchema) {
   }
 }
 
-/**
- * Schema de validação para atualização parcial
- */
 export const updateEmployeeSchema = addEmployeeSchema.fork(
   ['full_name', 'cpf', 'birth_date', 'position_id', 'hire_date', 'current_salary'],
   (schema) => schema.optional()

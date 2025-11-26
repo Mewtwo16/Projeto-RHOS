@@ -4,16 +4,26 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
 let serverIsOn: boolean = false
 let mainWindow: BrowserWindow | null = null
+let serverStartPromise: Promise<void> | null = null
 
 async function startServer(): Promise<void> {
   if (serverIsOn) return
-  try {
-    await import('./server')
-    serverIsOn = true
-    console.log('Servidor iniciado com sucesso')
-  } catch (e) {
-    console.error(`[Server Fatal]: Falha ao iniciar servidor: ${e}`)
-  }
+  if (serverStartPromise) return serverStartPromise
+  
+  serverStartPromise = (async () => {
+    try {
+      await import('./server')
+      // Aguardar 1 segundo para garantir que o servidor está pronto
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      serverIsOn = true
+      console.log('✓ Servidor iniciado com sucesso')
+    } catch (e) {
+      console.error(`✗ [Server Fatal]: Falha ao iniciar servidor: ${e}`)
+      throw e
+    }
+  })()
+  
+  return serverStartPromise
 }
 
 function createLoginWindow(): void {
@@ -110,7 +120,7 @@ function createMainWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   electronApp.setAppUserModelId('com.electron')
   
   const { session } = require('electron')
@@ -120,7 +130,11 @@ app.whenReady().then(() => {
     console.log('Sessões antigas limpas ao iniciar')
   })
 
-  startServer()
+  // Aguardar o servidor iniciar antes de criar as janelas
+  console.log('Iniciando servidor Express...')
+  await startServer()
+  console.log('Servidor pronto, criando janela de login...')
+  
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
